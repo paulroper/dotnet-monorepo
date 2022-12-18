@@ -19,5 +19,10 @@ RUN dotnet publish ./apps/$APP_NAME/ -c release -o /app --no-restore
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
+
+ARG APP_NAME
+ENV APP_DLL="$APP_NAME.Application.dll"
+
 COPY --from=build /app ./
-ENTRYPOINT ["dotnet", "$APP_NAME.Application.dll"]
+RUN ls -alh ./
+ENTRYPOINT ["/bin/sh", "-c", "dotnet ${APP_DLL}"]
