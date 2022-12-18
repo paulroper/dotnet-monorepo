@@ -9,4 +9,5 @@ $apps = (
 
 foreach ($app in $apps) {
   Copy-Item ./Dockerfile ./apps/$app/ -Force
+  Copy-Items ./deps.json ./apps/$app/ -Force
 }
