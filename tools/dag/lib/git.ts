@@ -28,19 +28,26 @@ export const getChangedFiles = async (): Promise<string[]> =>
       return [];
     }
 
+    // TODO: Need to diff against the branch this was based off to get a full list of changes
     const command = spawn("git", ["diff", "--name-only"]);
 
     command.stdout.on("data", (data) => {
       const lines = (data as Buffer)
         .toString()
         .split(EOL)
-        .filter((x) => x);
+        .filter((x) => x && !x.startsWith("warning: CRLF") && !x.startsWith("The file will"));
 
       return resolve(lines);
     });
 
     command.stderr.on("data", (data) => {
-      console.error((data as Buffer).toString());
+      const string = (data as Buffer).toString();
+      console.error(string);
+
+      if (string.startsWith("warning: CRLF")) {
+        return;
+      }
+
       return reject("Failed to load changes");
     });
 
