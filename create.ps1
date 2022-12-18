@@ -1,3 +1,16 @@
+$libs = (
+  'Shared.Entities'
+)
+
+foreach ($lib in $libs) {
+  mkdir libs/$lib
+  Set-Location "libs/$lib"
+
+  dotnet new classlib -f net6.0
+
+  Set-Location ../../
+}
+
 $apps = (
   'Atlas',
   'Centre',
@@ -16,9 +29,9 @@ foreach ($app in $apps) {
 
   dotnet new sln
   dotnet sln add ./$app.Application
+  dotnet sln add ../../libs/Shared.Entities
 
   Copy-Item ../../Dockerfile .
-  Copy-Item ../../.dockerignore .
 
   Set-Location ../../
 }

@@ -5,14 +5,16 @@ WORKDIR /source
 ARG APP_NAME
 
 # copy csproj and restore as distinct layers
-COPY *.sln .
-COPY $APP_NAME.Application/$APP_NAME.Application.csproj ./$APP_NAME.Application/$APP_NAME.Application.csproj
-RUN dotnet restore $APP_NAME.sln
+COPY ./apps/$APP_NAME/*.sln ./apps/$APP_NAME/
+COPY ./apps/$APP_NAME/$APP_NAME.Application/$APP_NAME.Application.csproj ./apps/$APP_NAME/$APP_NAME.Application/
+COPY ./libs/Shared.Entities/*.csproj ./libs/Shared.Entities/
+RUN dotnet restore ./apps/$APP_NAME/$APP_NAME.sln
 
 # copy everything else and build app
-COPY $APP_NAME.Application/ ./$APP_NAME.Application/
+COPY ./apps/$APP_NAME/$APP_NAME.Application/ ./apps/$APP_NAME/$APP_NAME.Application/
+COPY ./libs/Shared.Entities/*.csproj ./libs/Shared.Entities
 WORKDIR /source
-RUN dotnet publish -c release -o /app --no-restore
+RUN dotnet publish ./apps/$APP_NAME/ -c release -o /app --no-restore
 
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0

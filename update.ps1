@@ -9,5 +9,4 @@ $apps = (
 
 foreach ($app in $apps) {
   Copy-Item ./Dockerfile ./apps/$app/ -Force
-  Copy-Item ./.dockerignore ./apps/$app/ -Force
 }
