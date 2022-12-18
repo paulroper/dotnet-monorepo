@@ -1,28 +1,89 @@
-import { ModuleName } from "../types/dag";
+import { DepsMap, ModuleName } from "../types/dag";
 
-export const getModulesToBuild = (filteredChangedFiles: string[]) => {
-  return filteredChangedFiles.reduce<{ [moduleName: ModuleName]: boolean }>((acc, path) => {
+interface BuildMap {
+  [moduleName: ModuleName]: boolean;
+}
+
+const moduleIsApp = (moduleName: string): boolean =>
+  moduleName.startsWith("apps/");
+
+const getDependentModules = (moduleName: string, depsMap: DepsMap): string[] =>
+  Object.keys(depsMap)
+    .map((dependentModule) =>
+      depsMap[dependentModule].dependsOn.includes(moduleName)
+        ? dependentModule
+        : undefined
+    )
+    .filter((module): module is string => !!module);
+
+const getBuildMapForModule = (
+  moduleName: string,
+  depsMap: DepsMap
+): BuildMap => {
+  const dependentModules = getDependentModules(moduleName, depsMap);
+
+  let toCheck = [...dependentModules];
+  let moduleList = [...dependentModules];
+
+  let depth = 0;
+  const maxDepth = 999;
+
+  // Currently a loop as Node doesn't have tail recursion :(
+  do {
+    const nextLayer = toCheck.flatMap((module) =>
+      getDependentModules(module, depsMap)
+    );
+
+    moduleList = [...moduleList, ...nextLayer];
+
+    toCheck = nextLayer;
+    depth++;
+  } while (toCheck.length > 0 && depth <= maxDepth);
+
+  if (depth >= maxDepth) {
+    console.warn(
+      "Max depth of",
+      maxDepth,
+      "reached while checking dependencies!"
+    );
+  }
+
+  return moduleList.reduce<BuildMap>(
+    (map, module) => (moduleIsApp(module) ? { ...map, [module]: true } : map),
+    {}
+  );
+};
+
+export const getModulesToBuild = (
+  depsMap: DepsMap,
+  filteredChangedFiles: string[]
+) => {
+  return filteredChangedFiles.reduce<BuildMap>((acc, path) => {
     // 1. Match the file change against a module
-    const moduleMatch = /(?:apps|libs)\/\w+/.exec(path);
+    const moduleMatch = /(?:apps|libs)\/[a-zA-Z._]+[^\/]/.exec(path);
     if (!moduleMatch || moduleMatch.length > 1) {
-      console.warn('Bad module match detected. Got:', moduleMatch);
+      console.warn("Bad module match detected. Got:", moduleMatch);
       return acc;
     }
 
     const moduleName = moduleMatch[0];
 
     // 2. For an app change, check if the app is already marked for build
-    const isApp = moduleName.startsWith('apps/');
+    const isApp = moduleIsApp(moduleName);
     if (isApp && acc[moduleMatch[0]]) {
-      console.info('App', moduleName, 'is already marked for build');
+      console.info("App", moduleName, "is already marked for build");
       return acc;
     }
 
     // 3. If the change is for a module, find all dependent apps and mark them for rebuild
     if (!isApp) {
-      // TODO: Need to do a search on the DAG to work out which apps to build
-      console.info("Module -> app resolution not yet implemented");
-      return acc;
+      const moduleBuildMap = getBuildMapForModule(moduleName, depsMap);
+      console.info("Build map for lib", moduleName, "is", moduleBuildMap);
+
+      return {
+        ...acc,
+        ...moduleBuildMap,
+      };
     }
 
     // 4. The app has not yet been marked for build
@@ -30,7 +91,7 @@ export const getModulesToBuild = (filteredChangedFiles: string[]) => {
 
     return {
       ...acc,
-      [moduleName]: true
+      [moduleName]: true,
     };
   }, {});
 };

@@ -42,11 +42,11 @@ import type { DepsMap } from "./types/dag";
   console.log();
 
   // Step four - Work out what we need to build
-  const toBuild = getModulesToBuild(filteredChangedFiles);
+  const toBuild = getModulesToBuild(depsMap, filteredChangedFiles);
 
   console.log();
-  console.log('Modules to build are', toBuild);
+  console.log("Modules to build are", toBuild);
 
   // Step five - Write the build list to a file ready to be passed to docker buildx bake
-  await writeFile('./toBuild.json', JSON.stringify(toBuild, null, 2));
+  await writeFile("./toBuild.json", JSON.stringify(toBuild, null, 2));
 })();
