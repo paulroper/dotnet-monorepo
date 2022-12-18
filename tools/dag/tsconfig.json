@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strict": true,
+    "target": "ES2022",
+  },
+  "include": [
+    "*.ts", "lib/git.ts",
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}

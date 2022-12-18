@@ -32,6 +32,7 @@ foreach ($app in $apps) {
   dotnet sln add ../../libs/Shared.Entities
 
   Copy-Item ../../Dockerfile .
+  Copy-Item ../../deps.json.example ./deps.json
 
   Set-Location ../../
 }
