@@ -24,5 +24,4 @@ ARG APP_NAME
 ENV APP_DLL="$APP_NAME.Application.dll"
 
 COPY --from=build /app ./
-RUN ls -alh ./
 ENTRYPOINT ["/bin/sh", "-c", "dotnet ${APP_DLL}"]
