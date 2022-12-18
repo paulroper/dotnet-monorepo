@@ -3,6 +3,7 @@
 ## Prerequisites
 
 * Docker Desktop with buildx enabled
+* .NET CLI with >= 6.0 SDK
 
 ## Setup
 
