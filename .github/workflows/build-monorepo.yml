@@ -1,0 +1,30 @@
+name: Build Monorepo
+run-name: Builds the monorepo using Docker buildx 🐋
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.5.1
+      with:
+        node-version-file: ./tools/dag/.node-version
+
+    - name: 'Install dependencies for dag'
+      run: 'cd ./tools/dag && yarn'
+
+    - name: 'Run a build'
+      shell: 'pwsh'
+      run: './build.ps1'
