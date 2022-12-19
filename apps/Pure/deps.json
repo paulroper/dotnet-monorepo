@@ -1,0 +1,6 @@
+{
+  "dependsOn": [
+    "libs/Shared.Entities",
+    "libs/Shared.Http"
+  ]
+}
