@@ -28,7 +28,7 @@ export const getChangedFiles = async (): Promise<string[]> =>
     }
 
     // TODO: Need to diff against the branch this was based off to get a full list of changes
-    const command = spawn("git", ["diff", "--name-only"]);
+    const command = spawn("git", ["diff", "origin/main", "--name-only"]);
 
     command.stdout.on("data", (data) => {
       const lines = (data as Buffer)
