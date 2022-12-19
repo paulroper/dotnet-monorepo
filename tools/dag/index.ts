@@ -48,5 +48,10 @@ import type { DepsMap } from "./types/dag";
   console.log("Modules to build are", toBuild);
 
   // Step five - Write the build list to a file ready to be passed to docker buildx bake
-  await writeFile("./toBuild.json", JSON.stringify(toBuild, null, 2));
+  await writeFile(
+    "./toBuild",
+    Object.keys(toBuild)
+      .map((module) => module.replace("apps/", "").toLowerCase())
+      .join(";")
+  );
 })();

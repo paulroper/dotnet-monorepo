@@ -1,4 +1,3 @@
-import { EOL } from "os";
 import { spawn } from "node:child_process";
 
 const checkIfGitInstalled = (): Promise<boolean> =>
@@ -34,8 +33,8 @@ export const getChangedFiles = async (): Promise<string[]> =>
     command.stdout.on("data", (data) => {
       const lines = (data as Buffer)
         .toString()
-        .split(EOL)
-        .filter((x) => x && !x.startsWith("warning: CRLF") && !x.startsWith("The file will"));
+        .split("\n") // TODO: Not sure if this will work on all machines. Git for Windows seems to output \n on my machine.
+        .filter((x) => x);
 
       return resolve(lines);
     });
