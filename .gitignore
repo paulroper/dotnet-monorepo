@@ -38,3 +38,5 @@ msbuild.wrn
 
 **/node_modules/
 toBuild
+
+.fake
